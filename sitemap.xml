@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://example.com/2021/10/09/2021-hackme/</loc>
+    <loc>http://example.com/2021/10/10/gkctf2021hackme/</loc>
     
-    <lastmod>2021-10-09T15:29:43.466Z</lastmod>
+    <lastmod>2021-10-10T08:14:22.522Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://example.com/2021/10/09/my-first-blog/</loc>
+    
+    <lastmod>2021-10-10T08:00:24.042Z</lastmod>
     
   </url>
   
@@ -26,13 +33,6 @@
     <loc>http://example.com/categories/index.html</loc>
     
     <lastmod>2021-10-09T08:51:39.222Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/2021/10/09/my-first-blog/</loc>
-    
-    <lastmod>2021-10-09T08:12:49.619Z</lastmod>
     
   </url>
   

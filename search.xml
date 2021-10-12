@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>my-first-blog</title>
+    <title>关于自己</title>
     <url>/2021/10/09/my-first-blog/</url>
     <content><![CDATA[<p>欢迎来到我的博客，我会发布一下有关渗透的博文，请多交流！</p>
 <span id="more"></span>]]></content>
@@ -37,12 +37,14 @@
       <categories>
         <category>内网渗透</category>
         <category>权限提升</category>
+        <category>小迪安全</category>
       </categories>
       <tags>
         <tag>渗透测试</tag>
         <tag>内网渗透</tag>
         <tag>权限提升</tag>
         <tag>数据库</tag>
+        <tag>小迪安全</tag>
       </tags>
   </entry>
   <entry>

